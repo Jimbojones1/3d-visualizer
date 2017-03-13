@@ -20,7 +20,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.autoClearColor = true;
 container.appendChild(renderer.domElement);
 controls = new THREE.OrbitControls( camera, renderer.domElement );
-
+var particleSystem;
 function calcColor(rgbValue, matrix){
       for (var i = 0; i < matrix.length; i++){
         if (i === 0){
@@ -104,7 +104,7 @@ function init() {
 
      geometry = new THREE.Geometry();
 
-    for (var i = 0; i < 1024; i++) {
+    for (var i = 0; i < 200000; i++) {
 
         var vertex = new THREE.Vector3(20 * Math.sin(i/10) * Math.cos(i), 20 * Math.cos(i/10), 20 * Math.sin(i) * Math.sin(i/10));
         // vertex.x = 20 * Math.sin(i/10) * Math.cos(i);
@@ -126,7 +126,7 @@ function init() {
 
 
     var material = new THREE.PointsMaterial( {
-            size: 1,
+            size: 0.33,
             vertexColors: THREE.VertexColors,
             depthTest: true,
             opacity: 1,
@@ -134,7 +134,7 @@ function init() {
         } );
 
 
-    var particleSystem = new THREE.Points( geometry, material );
+    particleSystem = new THREE.Points( geometry, material );
 
     scene.add( particleSystem );
 
@@ -164,21 +164,205 @@ function animate() {
 }
 
 function render() {
-    var timeFrequencyData = new Uint8Array(analyser.fftSize);
+    // var timeFrequencyData = new Uint8Array(analyser.fftSize);
     var timeFloatData = new Float32Array(analyser.fftSize);
-    analyser.getByteTimeDomainData(timeFrequencyData);
+    // analyser.getByteTimeDomainData(timeFrequencyData);
     analyser.getFloatTimeDomainData(timeFloatData);
 
     if(matrix.fog){
       scene.fog = new THREE.Fog(matrix.fogColor, 0.015, 100);
     }
 
+     point.material.size = 0.4 + (timeFloatData[j]/2.5);
+    geometry.colorsNeedUpdate = true;
+    geometry.verticesNeedUpdate = true;
+
+    for (var j = 0; j < geometry.colors.length; j++){
+        if (j%3 !== 0 && j%2 !==0){
+            // point.material.color.set(matrix.particleOne);
+            // this stream mixes with the next stream
+            geometry.colors[j].r = matrix.R + (timeFloatData[j] * matrix.colorIntensity);
+            geometry.colors[j].g = 1;
+            geometry.colors[j].b = matrix.B + (timeFloatData[j] * matrix.colorIntensity);
+        }
+        else if (j%2 === 0){
+            // point.material.color.set(matrix.particleTwo);
+            // point.geometry.setColor(matrix.particleTwo);
+            geometry.colors[j].r = matrix.R + (timeFloatData[j] * matrix.colorIntensity);
+            geometry.colors[j].g = matrix.G + (timeFloatData[j] * matrix.colorIntensity);
+            geometry.colors[j].b = 1;
+        }
+        else if(j%3 === 0){
+            // point.material.color.set(matrix.particleThree);
+            // this is a dominant color
+            geometry.colors[j].r = 1;
+            geometry.colors[j].g = matrix.G + (timeFloatData[j] * matrix.colorIntensity);
+            geometry.colors[j].b = matrix.B + (timeFloatData[j] * matrix.colorIntensity);
+        }
+
+
+        // for brownian motion
+
+          dX = Math.random() * .1 - .05;
+          dY = Math.random() * .1 - .05;
+          dZ = Math.random() * .1 - .05;
+
+        // OG
+        if(matrix.sphere){
+            matrix.spacing =  matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) * Math.cos(j));
+
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j/matrix.angle) * Math.sin(j));
+        }
+        //donut
+        else if(matrix.donut){
+            matrix.spacing = 10 || matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) * Math.cos(j) + Math.cos(j));
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j/matrix.angle) * Math.sin(j) + Math.sin(j));
+
+            // point.position.y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity) * dY;
+            // point.position.z = matrix.spacing * (Math.sin(j) * Math.sin(j/matrix.angle)) * dZ;
+        }
+        //donut
+        else if(matrix.donut){
+            matrix.spacing =  matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) * Math.cos(j) + Math.cos(j));
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j) * Math.sin(j/matrix.angle) + Math.sin(j));
+
+        }
+
+        // long donut -- 14.3
+        else if(matrix.longDonut){
+
+            matrix.spacing = 9 || matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) + Math.cos(j));
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j/matrix.angle) + Math.sin(j));
+        }
+        // perogi
+        else if(matrix.perogi){
+            matrix.spacing = 15 || matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.cos(j/matrix.angle) * Math.cos(j));
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j/matrix.angle) * Math.sin(j));
+        }
+        // square thing
+        else if(matrix.square){
+            matrix.spacing = 10 || matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) * Math.cos(j) + Math.sin(j));
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j/matrix.angle) * Math.sin(j) + Math.cos(j));
+        }
+        //quadangle!
+        else if(matrix.quadangle){
+            matrix.spacing = 10 || matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) * Math.cos(j) + Math.sin(j));
+            geometry.vertices[j].y = matrix.spacing * (Math.sin(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j/matrix.angle) * Math.sin(j) + Math.cos(j));
+
+            matrix.spacing =  matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) + Math.cos(j)) * dX;
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity) * dY;
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j) + Math.sin(j/matrix.angle)) * dZ;
+        }
+        // perogi
+        else if(matrix.perogi){
+            matrix.spacing =  matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.cos(j/matrix.angle) * Math.cos(j)) * dX;
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity) * dY;
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j) * Math.sin(j/matrix.angle)) * dZ;
+        }
+        // square thing
+        else if(matrix.square){
+            matrix.spacing =  matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) * Math.cos(j) + Math.sin(j)) * dX;
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity) * dY;
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j) * Math.sin(j/matrix.angle) + Math.cos(j)) * dZ;
+
+        }
+        // tighter infinity -- remove z matrix rotaiton for this
+        else if(matrix.infinity){
+            matrix.spacing = matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) * Math.cos(j) + Math.cos(2*j/matrix.angle));
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j/matrix.angle) * Math.sin(j) + Math.sin(2*j/matrix.angle));
+        }
+        // also a long donut
+        else if(matrix.longDonut2){
+            matrix.spacing =  matrix.spacing;
+            geometry.vertices[j].x = matrix.spacing * (Math.cos(j/matrix.angle) + Math.cos(j));
+            geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+            geometry.vertices[j].z = matrix.spacing * (Math.sin(j/matrix.angle) + Math.sin(j));
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // console.log(timeFloatData)
+
+
+
+            // console.log(geometry.verticesNeedUpdate)
+
+
+
+        //   if(matrix.sphere){
+        //      matrix.spacing =  matrix.spacing;
+        //     geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) * Math.cos(j));
+        //     geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+        //     geometry.vertices[j].z = matrix.spacing * (Math.sin(j/matrix.angle) * Math.sin(j));
+        // }
+        // else {
+        //     matrix.spacing = 10 || matrix.spacing;
+        //     geometry.vertices[j].x = matrix.spacing * (Math.sin(j/matrix.angle) * Math.cos(j) + Math.cos(j));
+        //     geometry.vertices[j].y = matrix.spacing * (Math.cos(j/matrix.angle)) + (timeFloatData[j] * matrix.intensity);
+        //     geometry.vertices[j].z = matrix.spacing * (Math.sin(j) * Math.sin(j/matrix.angle) + Math.sin(j));
+        // }
+
+
+    } // end of loop maybee
+
+    matrix.angle += matrix.animationSpeed;
+
+    var x = camera.position.x;
+    var z = camera.position.z;
+    camera.position.x = x * Math.cos(matrix.zoomSpeed) - z * Math.sin(matrix.zoomSpeed);
+    camera.position.z = z * Math.cos(matrix.zoomSpeed) + x * Math.sin(matrix.zoomSpeed);
+
+    // var z = camera.position.z;
+    var y = camera.position.y;
+    camera.position.y = y * Math.cos(matrix.zoomSpeed) + z * Math.sin(matrix.zoomSpeed);
+    camera.position.z = z * Math.cos(matrix.zoomSpeed) - y * Math.sin(matrix.zoomSpeed);
+
+    var rotationMatrix = new THREE.Matrix4().m
 
 
 
     camera.lookAt(scene.position);
     renderer.render(scene, camera);
 }
+
 
 function onKeyDown(e) {
     switch (e.which) {
@@ -262,7 +446,7 @@ function onKeyDown(e) {
             matrix.longDonut2 = true;
             break;
     }
-}
+  }
 
 
 // var neither = [];
