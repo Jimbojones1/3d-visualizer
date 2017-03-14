@@ -72,7 +72,7 @@ gui.addColor(matrix, 'particleTwo').name('Color 2');
 gui.addColor(matrix, 'particleThree').name('Color 3');
 gui.addColor(matrix, 'fogColor')
 gui.add(matrix, 'radius',0, 100).step(1).name('radius')
-gui.add(matrix, 'size',0, 2).step(0.1).name('size')
+gui.add(matrix, 'size',0, 5).step(0.1).name('size')
 
 var stats = new Stats();
 stats.showPanel( 0 );
@@ -93,7 +93,7 @@ worker.onmessage = function(e){
   var data = e.data;
   console.log(data)
 }
-
+var color;
 
 
 function init() {
@@ -105,7 +105,7 @@ function init() {
       var positions = new Float32Array( numOfParticles * 3 );
       var colors = new Float32Array( numOfParticles * 3 );
       var sizes = new Float32Array( numOfParticles );
-      var color = new THREE.Color();
+       color = new THREE.Color();
 
     // for (var i = 0; i < 100000; i++) {
 
@@ -122,12 +122,10 @@ function init() {
     // }
 
         var material = new THREE.PointsMaterial( {
-          size: matrix.size,
           vertexColors: THREE.VertexColors,
           depthTest: true,
           opacity: 1,
-          sizeAttenuation: true,
-          blending: THREE.AdditiveBlending
+          sizeAttenuation: true
       } );
 
 
@@ -245,7 +243,7 @@ function render() {
 
 
          if(matrix.sphere){
-         matrix.spacing = matrix.spacing;
+         matrix.spacing =  matrix.spacing;
          geometry.attributes.position.array[ vert + 0 ] = matrix.spacing * (Math.sin(i/matrix.angle)) * Math.cos(i);
          geometry.attributes.position.array[ vert + 1 ] = matrix.spacing * (Math.cos(i/matrix.angle));
          geometry.attributes.position.array[ vert + 2 ] = matrix.spacing * (Math.sin(i/matrix.angle)) * Math.sin(i);
@@ -259,7 +257,7 @@ function render() {
             geometry.attributes.position.array[ vert + 2 ] = matrix.spacing * (Math.sin(i/matrix.angle) * Math.sin(i) + Math.sin(i));
         }
 
-         geometry.attributes.size.array[i] = matrix.size;
+         // geometry.attributes.size.array[i] = matrix.size;
 
          particleSystem.material.size = matrix.size
 
@@ -269,17 +267,19 @@ function render() {
 
 
          if(i%3 !== 0 && i%2 !==0){
-            particleSystem.material.color.set(matrix.particleOne);
-            geometry.attributes.color.array[ vert + 0 ] = 0.2;
-            geometry.attributes.color.array[ vert + 1 ] = 0.3;
-            geometry.attributes.color.array[ vert + 2 ] = 0.9;
+            // var color  = new THREE.Color();
+            color.setHex(matrix.particleOne)
+            geometry.attributes.color.array[ vert + 0 ] = color.r;
+            geometry.attributes.color.array[ vert + 1 ] = color.g;
+            geometry.attributes.color.array[ vert + 2 ] = color.b;
 
          }
           else if (i%2 === 0){
-            particleSystem.material.color.set(matrix.particleTwo);
-            geometry.attributes.color.array[ vert + 0 ] = 0.9;
-            geometry.attributes.color.array[ vert + 1 ] = 0.8;
-            geometry.attributes.color.array[ vert + 2 ] = 0.4;
+            (matrix.particleTwo);
+              color.setHex(matrix.particleTwo)
+            geometry.attributes.color.array[ vert + 0 ] = color.r;
+            geometry.attributes.color.array[ vert + 1 ] = color.g;
+            geometry.attributes.color.array[ vert + 2 ] = color.b;
             // particleSystem.geometry.colors[j].set(matrix.particleTwo);
             // r = geometry.colors[j].r;
             // g = geometry.colors[j].g;
@@ -288,10 +288,11 @@ function render() {
             // geometry.colors[j].b = 1;
         }
         else if(i%3 === 0){
-            particleSystem.material.color.set(matrix.particleThree);
-            geometry.attributes.color.array[ vert + 0 ] = 0.9;
-            geometry.attributes.color.array[ vert + 1 ] = 0.8;
-            geometry.attributes.color.array[ vert + 2 ] = 0.9;
+            // particleSystem.geometry.colors.set(matrix.particleThree);
+              color.setHex(matrix.particleThree)
+            geometry.attributes.color.array[ vert + 0 ] = color.r;
+            geometry.attributes.color.array[ vert + 1 ] = color.g;
+            geometry.attributes.color.array[ vert + 2 ] = color.b;
             // particleSystem.geometry.colors[j].set(matrix.particleThree);
             // r = geometry.colors[j].r;
             // g = geometry.colors[j].g;
