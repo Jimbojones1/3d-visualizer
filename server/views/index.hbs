@@ -5,6 +5,62 @@
 </head>
 <body>
 <p id="notification"> click here for mic input, or drag a song</p>
+
+
+
+
+<script type="x-shader/x-vertex" id="vertexShader">
+// vertex shaders manipulate the vertices of polygoins.
+// At render time, your vertex shader is run on every vertex
+// uniform vec3 color;
+// attribute float size;
+
+// varying vec3 vColor; // varying vars are passed to the fragment shader
+
+// void main() {
+//   vColor = color;  // pass the color to the fragment shader
+//   gl_PointSize = size
+// }
+  // attribute float size;
+  // attribute vec3 customColor;
+  // varying vec3 vColor;
+  // void main() {
+  //   vColor = customColor;
+  //   vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+  //   gl_PointSize = size * ( 300.0 / -mvPosition.z );
+  //   gl_Position = projectionMatrix * mvPosition;
+  // }
+
+
+
+
+</script>
+
+
+<script type="x-shader/x-vertex" id="fragmentShader">
+// Fragment shaders are also known as pixel shaders, You can make GRADIENTS!
+// varying vec3 vColor
+
+// void main(){
+//   gl_FragColor = vec4(vColor, 0.5) // adjust the alpha
+// }
+
+
+// uniform vec3 color;
+
+// varying vec3 vColor;
+// void main() {
+//   gl_FragColor = vec4( color * vColor, 1.0 );
+//   // gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+// }
+
+
+</script>
+
+
+
+
+
 <script src="/scripts/three.min.js"></script>
 <script src="/scripts/velocity.min.js"></script>
 <script src="/scripts/dat.gui.min.js"></script>
