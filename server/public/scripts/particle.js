@@ -104,7 +104,7 @@ function init() {
 
      geometry = new THREE.Geometry();
 
-    for (var i = 0; i < 200000; i++) {
+    for (var i = 0; i < 100000; i++) {
 
         var vertex = new THREE.Vector3(20 * Math.sin(i/10) * Math.cos(i), 20 * Math.cos(i/10), 20 * Math.sin(i) * Math.sin(i/10));
         // vertex.x = 20 * Math.sin(i/10) * Math.cos(i);
@@ -173,9 +173,9 @@ function render() {
       scene.fog = new THREE.Fog(matrix.fogColor, 0.015, 100);
     }
 
-     point.material.size = 0.4 + (timeFloatData[j]/2.5);
+     // point.material.size = 0.4 + (timeFloatData[j]/2.5);
     geometry.colorsNeedUpdate = true;
-    geometry.verticesNeedUpdate = true;
+    // geometry.verticesNeedUpdate = true;
 
     for (var j = 0; j < geometry.colors.length; j++){
         if (j%3 !== 0 && j%2 !==0){
