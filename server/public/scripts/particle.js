@@ -54,9 +54,9 @@ var GuiControls = function(){
     this.square = false;
     this.infinity = false;
     this.longDonut2 = false;
-    this.dotOne = [255, 128, 255];
-    this.dotTwo = [0, 128, 255];
-    this.dotThree = [0, 230, 255];
+    this.particleOne = 0x00ff00;
+    this.particleTwo = 0x0000ff;
+    this.particleThree = 0xff0000;
     this.color = "#ffae23";
     this.fog = false;
     this.fogColor = [0, 230, 255];
@@ -77,10 +77,10 @@ gui.add(matrix, 'colorIntensity', 0.5, 5).step(1).name('Color Intensity');
 gui.add(matrix, 'zoomSpeed', 0.001, 0.1).step(0.001).name('Zoom Speed');
 gui.add(matrix, 'rotationSpeed', 0, 0.1).step(0.000005).name('Z-index Rotation Speed');
 gui.add(matrix, 'fog').name('fog')
-gui.addColor(matrix, 'dotOne')
-gui.addColor(matrix, 'dotTwo')
 gui.addColor(matrix, 'fogColor')
-gui.addColor(matrix, 'dotThree')
+gui.addColor(matrix, 'particleOne').name('Color 1');
+gui.addColor(matrix, 'particleTwo').name('Color 2');
+gui.addColor(matrix, 'particleThree').name('Color 3');
 var stats = new Stats();
 stats.showPanel( 0 );
 document.body.appendChild( stats.dom );
@@ -104,7 +104,7 @@ function init() {
 
      geometry = new THREE.Geometry();
 
-    for (var i = 0; i < 100000; i++) {
+    for (var i = 0; i < 200000; i++) {
 
         var vertex = new THREE.Vector3(20 * Math.sin(i/10) * Math.cos(i), 20 * Math.cos(i/10), 20 * Math.sin(i) * Math.sin(i/10));
         // vertex.x = 20 * Math.sin(i/10) * Math.cos(i);
@@ -112,6 +112,7 @@ function init() {
         // vertex.z = 20 * Math.sin(i) * Math.sin(i/10);
         // // // vertex.y = i/100 * Math.cos(i/10) - i/100 * Math.sin(i/10);
         geometry.vertices.push(vertex);
+
         // geometry.colors.push(new THREE.Color(purpleColors[ Math.floor(Math.random() * purpleColors.length) ]));
         geometry.colors.push(new THREE.Color(0xffffff));
 
@@ -126,10 +127,10 @@ function init() {
 
 
     var material = new THREE.PointsMaterial( {
-            size: 0.33,
             vertexColors: THREE.VertexColors,
             depthTest: true,
             opacity: 1,
+            needsUpdate: true,
             sizeAttenuation: true
         } );
 
@@ -174,30 +175,36 @@ function render() {
     }
 
      // point.material.size = 0.4 + (timeFloatData[j]/2.5);
-    geometry.colorsNeedUpdate = true;
-    // geometry.verticesNeedUpdate = true;
+    particleSystem.geometry.colorsNeedUpdate =true
+    geometry.verticesNeedUpdate = true;
 
     for (var j = 0; j < geometry.colors.length; j++){
+      var r, g, b;
+      var intensity = timeFloatData[j] * matrix.colorIntensity;
+
         if (j%3 !== 0 && j%2 !==0){
-            // point.material.color.set(matrix.particleOne);
+            particleSystem.geometry.colors[j].set(matrix.particleOne);
             // this stream mixes with the next stream
-            geometry.colors[j].r = matrix.R + (timeFloatData[j] * matrix.colorIntensity);
-            geometry.colors[j].g = 1;
-            geometry.colors[j].b = matrix.B + (timeFloatData[j] * matrix.colorIntensity);
+            r = geometry.colors[j].r;
+            g = geometry.colors[j].g;
+            b = geometry.colors[j].b;
+            geometry.colors[j].setRGB((r + intensity), (g + intensity), (b + intensity));
         }
         else if (j%2 === 0){
-            // point.material.color.set(matrix.particleTwo);
+            particleSystem.geometry.colors[j].set(matrix.particleTwo);
             // point.geometry.setColor(matrix.particleTwo);
-            geometry.colors[j].r = matrix.R + (timeFloatData[j] * matrix.colorIntensity);
-            geometry.colors[j].g = matrix.G + (timeFloatData[j] * matrix.colorIntensity);
-            geometry.colors[j].b = 1;
+            r = geometry.colors[j].r;
+            g = geometry.colors[j].g;
+            b = geometry.colors[j].b;
+            geometry.colors[j].setRGB((r + intensity), (g + intensity), (b + intensity));
         }
         else if(j%3 === 0){
-            // point.material.color.set(matrix.particleThree);
+            particleSystem.geometry.colors[j].set(matrix.particleThree);
             // this is a dominant color
-            geometry.colors[j].r = 1;
-            geometry.colors[j].g = matrix.G + (timeFloatData[j] * matrix.colorIntensity);
-            geometry.colors[j].b = matrix.B + (timeFloatData[j] * matrix.colorIntensity);
+            r = geometry.colors[j].r;
+            g = geometry.colors[j].g;
+            b = geometry.colors[j].b;
+            geometry.colors[j].setRGB((r + intensity), (g + intensity), (b + intensity));
         }
 
 
