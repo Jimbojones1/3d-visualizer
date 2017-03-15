@@ -73,9 +73,9 @@
       float dProd = max(0.1, dot(vNormal, light));
 
      // feed into our frag colour
-      gl_FragColor = vec4(dProd , // R
-                          0.4, // G
-                          dProd, // B
+      gl_FragColor = vec4(dProd * color.r, // R
+                          color.g * dProd, // G
+                          color.b * dProd, // B
                           1.0);  // A
     }
 

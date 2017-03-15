@@ -158,7 +158,7 @@ function init() {
     vectorPosDisplacementArrayVal = []
 
     for(var j = 0; j < geo.attributes.position.count; j++) {
-        vectorPosDisplacementArrayVal.push(Math.random() * 30)
+        vectorPosDisplacementArrayVal.push(Math.random() * 10)
     }
 
 
@@ -238,15 +238,25 @@ function render() {
     frame += 0.1
      // point.material.size = 0.4 + (timeFloatData[j]/2.5);
     // sphere.geometry.attributes.color.needsUpdate = true;
+    // sphere.geometry.attributes.displacement.dynamic = true;
     particleSystem.geometry.colorsNeedUpdate =true
     geometry.verticesNeedUpdate = true;
+    // console.log(uniforms["color"].value)
+    // console.log(new THREE.Color(matrix.particleOne))
+    uniforms["color"].value = new THREE.Color(matrix.particleOne)
 
     for (var j = 0; j < geometry.colors.length; j++){
       var r, g, b;
       var intensity = timeFloatData[j] * matrix.colorIntensity;
       // this is awesome looking zoom back the camera
       // Math.sin(frame)/Math.sin(Math.abs(timeFloatData[j]))
-      uniforms.amplitude.value = Math.sin(frame)/Math.sin(Math.abs(timeFloatData[j])) || 1
+      sphere.geometry.attributes.displacement.dynamic = true
+      sphere.geometry.attributes.displacement.needsUpdate = true
+      // console.log(Math.sin(frame/timeFloatData[j]))
+
+      // big one Math.sin(frame/timeFloatData[j])/Math.sin(Math.abs(timeFloatData[j]))
+      uniforms.amplitude.value = Math.abs(timeFloatData[j]) * 100|| 1
+
       // uniforms.amplitude.value = matrix.particleOne;
       // console.log(timeFloatData[j], typeof timeFloatData[j])
       // sphere.material.uniforms.amplitude.value =  timeFloatData[j] * 2 || 1
@@ -254,6 +264,7 @@ function render() {
         if (j%3 !== 0 && j%2 !==0){
             particleSystem.geometry.colors[j].set(matrix.particleOne);
             // this stream mixes with the next stream
+
             r = geometry.colors[j].r;
             g = geometry.colors[j].g;
             b = geometry.colors[j].b;
