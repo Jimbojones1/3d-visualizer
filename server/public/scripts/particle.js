@@ -21,6 +21,8 @@ renderer.autoClearColor = true;
 container.appendChild(renderer.domElement);
 controls = new THREE.OrbitControls( camera, renderer.domElement );
 var particleSystem;
+var taco = [];
+var uniforms;
 function calcColor(rgbValue, matrix){
       for (var i = 0; i < matrix.length; i++){
         if (i === 0){
@@ -86,9 +88,11 @@ stats.showPanel( 0 );
 document.body.appendChild( stats.dom );
 init();
 var geometry;
-
+var sphere;
+var displacement;
 var worker = new Worker('/scripts/worker.js')
-
+var geo;
+var multiplied;
 worker.postMessage({
   some_data: 'foo',
   some_more_data: 'bar'
@@ -99,12 +103,14 @@ worker.onmessage = function(e){
   console.log(data)
 }
 
-
+function returnArrayVal(anArray){
+      return Float32Array.from(anArray)
+    }
 function init() {
 
      geometry = new THREE.Geometry();
 
-    for (var i = 0; i < 200000; i++) {
+    for (var i = 0; i < 2048; i++) {
 
         var vertex = new THREE.Vector3(20 * Math.sin(i/10) * Math.cos(i), 20 * Math.cos(i/10), 20 * Math.sin(i) * Math.sin(i/10));
         // vertex.x = 20 * Math.sin(i/10) * Math.cos(i);
@@ -125,6 +131,60 @@ function init() {
 
     }
 
+
+
+
+
+
+    var radius = 50, segments = 128, rings = 64;
+    geo = new THREE.SphereBufferGeometry( radius, segments, rings );
+    // var geo = new THREE.SphereGeometry( 5, 32, 32 );
+
+    uniforms = {
+      "amplitude": { value: 1 },
+        "color": { value: new THREE.Color( 0xff2200 ) }
+    }
+
+    var shaderMaterial = new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      vertexShader:   document.getElementById('vertexShader').textContent,
+      fragmentShader: document.getElementById('fragmentShader').textContent
+    })
+
+
+  function returnProperArrayType(anArray){
+      return Float32Array.from(anArray)
+    }
+    vectorPosDisplacementArrayVal = []
+
+    for(var j = 0; j < geo.attributes.position.count; j++) {
+        vectorPosDisplacementArrayVal.push(Math.random() * 30)
+    }
+
+
+    // now populate the array of attributes
+    geo.addAttribute( 'displacement', new THREE.BufferAttribute( returnProperArrayType(vectorPosDisplacementArrayVal), 1 ) );
+
+
+
+    sphere = new THREE.Mesh( geo, shaderMaterial );
+
+
+    var verts = sphere.geometry.attributes.position.count;
+    console.log(verts, ' this is verts')
+    scene.add( sphere );
+    // var radius = 50, segments = 16, rings = 16;
+
+
+    //   // create a new mesh with sphere geometry -
+    //   // we will cover the sphereMaterial next!
+    //   var sphere = new THREE.Mesh(
+    //      new THREE.Sphere(radius, segments, rings),
+    //      shaderMaterial);
+
+    //   // add the sphere to the scene
+    //   scene.add(sphere);
+    // scene.add(cube)
 
     var material = new THREE.PointsMaterial( {
             vertexColors: THREE.VertexColors,
@@ -163,7 +223,7 @@ function animate() {
     render();
     stats.end();
 }
-
+var frame = 0;
 function render() {
     // var timeFrequencyData = new Uint8Array(analyser.fftSize);
     var timeFloatData = new Float32Array(analyser.fftSize);
@@ -174,13 +234,22 @@ function render() {
       scene.fog = new THREE.Fog(matrix.fogColor, 0.015, 100);
     }
 
+
+    frame += 0.1
      // point.material.size = 0.4 + (timeFloatData[j]/2.5);
+    // sphere.geometry.attributes.color.needsUpdate = true;
     particleSystem.geometry.colorsNeedUpdate =true
     geometry.verticesNeedUpdate = true;
 
     for (var j = 0; j < geometry.colors.length; j++){
       var r, g, b;
       var intensity = timeFloatData[j] * matrix.colorIntensity;
+      // this is awesome looking zoom back the camera
+      // Math.sin(frame)/Math.sin(Math.abs(timeFloatData[j]))
+      uniforms.amplitude.value = Math.sin(frame)/Math.sin(Math.abs(timeFloatData[j])) || 1
+      // uniforms.amplitude.value = matrix.particleOne;
+      // console.log(timeFloatData[j], typeof timeFloatData[j])
+      // sphere.material.uniforms.amplitude.value =  timeFloatData[j] * 2 || 1
 
         if (j%3 !== 0 && j%2 !==0){
             particleSystem.geometry.colors[j].set(matrix.particleOne);
@@ -364,6 +433,7 @@ function render() {
 
     var rotationMatrix = new THREE.Matrix4().m
 
+    // run animation for uniforms;
 
 
     camera.lookAt(scene.position);

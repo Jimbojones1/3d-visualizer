@@ -3,6 +3,104 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="/styles/main.css">
 </head>
+
+
+<script type="x-shader/x-vertex" id="vertexShader">
+
+
+
+    // switch on high precision floats
+    #ifdef GL_ES
+    precision highp float;
+    #endif
+
+    uniform float amplitude;
+    attribute float displacement;
+    varying vec3 vNormal;
+    // varying float amplitude;
+    void main() {
+
+      vNormal = normal;
+
+      // multiply our displacement by the
+      // amplitude. The amp will get animated
+
+      // amplitude = displacement * 2.0;
+      // so we'll have animated displacement
+      vec3 newPosition = position +
+                 normal *
+                 vec3(displacement * amplitude);
+
+      gl_Position = projectionMatrix *
+              modelViewMatrix *
+              vec4(newPosition, 3.5);
+    }
+
+
+
+
+
+</script>
+
+
+<script type="x-shader/x-vertex" id="fragmentShader">
+
+
+// same name and type as VS
+
+
+    #ifdef GL_ES
+    precision highp float;
+    #endif
+    uniform vec3 color;
+
+    uniform float amplitude;
+    varying vec3 vNormal;
+
+    void main()
+    {
+
+      // calc the dot product and clamp
+      // 0 -> 1 rather than -1 -> 1
+      vec3 light = vec3(0.5, 1, 1.0);
+
+      // ensure it's normalized
+      light = normalize(light);
+
+
+      // calculate the dot product of
+      // the light to the vertex normal
+      float dProd = max(0.1, dot(vNormal, light));
+
+     // feed into our frag colour
+      gl_FragColor = vec4(dProd , // R
+                          0.4, // G
+                          dProd, // B
+                          1.0);  // A
+    }
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <body>
 <p id="notification"> click here for mic input, or drag a song</p>
 <script src="/scripts/three.min.js"></script>
