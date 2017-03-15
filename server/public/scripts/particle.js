@@ -131,7 +131,6 @@ function init() {
 
       var radius = 200;
 
-
       for ( var i = 0, vert = 0; i < numOfParticles; i ++, vert += 3 ) {
         positions[ vert + 0 ] = 20 * Math.sin(i/10) * Math.cos(i);
         positions[ vert + 1 ] = 20 * Math.cos(i/10);
