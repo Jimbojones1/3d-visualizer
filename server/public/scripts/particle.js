@@ -224,6 +224,12 @@ function animate() {
     stats.end();
 }
 var frame = 0;
+// function updateAmplitude(musicData){
+//   for (var i = 0; i < sphere.geometry.attributes.displacement.array.length; i++){
+//     sphere.geometry.attributes.displacement.array[i] = musicData[i]
+//   }
+// }
+
 function render() {
     // var timeFrequencyData = new Uint8Array(analyser.fftSize);
     var timeFloatData = new Float32Array(analyser.fftSize);
@@ -255,7 +261,9 @@ function render() {
       // console.log(Math.sin(frame/timeFloatData[j]))
 
       // big one Math.sin(frame/timeFloatData[j])/Math.sin(Math.abs(timeFloatData[j]))
-      uniforms.amplitude.value = Math.abs(timeFloatData[j]) * 100|| 1
+      uniforms.amplitude.value = Math.abs(timeFloatData[j]) * 10 || 1
+
+      // sphere.geometry.attributes.displacement.array[j] = timeFloatData[j]
 
       // uniforms.amplitude.value = matrix.particleOne;
       // console.log(timeFloatData[j], typeof timeFloatData[j])
