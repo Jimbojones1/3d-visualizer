@@ -59,7 +59,7 @@ var GuiControls = function(){
     this.particleOne = 0x00ff00;
     this.particleTwo = 0x0000ff;
     this.particleThree = 0xff0000;
-    this.color = "#ffae23";
+    this.ballColor = "#ffae23";
     this.fog = false;
     this.fogColor = [0, 230, 255];
 };
@@ -83,6 +83,7 @@ gui.addColor(matrix, 'fogColor')
 gui.addColor(matrix, 'particleOne').name('Color 1');
 gui.addColor(matrix, 'particleTwo').name('Color 2');
 gui.addColor(matrix, 'particleThree').name('Color 3');
+gui.addColor(matrix, 'ballColor').name('Ball Color');
 var stats = new Stats();
 stats.showPanel( 0 );
 document.body.appendChild( stats.dom );
@@ -131,6 +132,18 @@ function init() {
 
     }
 
+    var colors = new Float32Array( 8385 * 3 );
+      color = new THREE.Color();
+      for ( var i = 0, vert = 0; i < 8385; i ++, vert += 3 ) {
+        // positions[ vert + 0 ] = 20 * Math.sin(i/10) * Math.cos(i);
+        // positions[ vert + 1 ] = 20 * Math.cos(i/10);
+        // positions[ vert + 2 ] = 20 * Math.sin(i) * Math.sin(i/10);
+        color.setRGB(1, 1, 0.5);
+        colors[ vert + 0 ] = color.r * Math.random();
+        colors[ vert + 1 ] = color.g * Math.random();
+        colors[ vert + 2 ] = Math.sin(color.b) * Math.random();
+        // sizes[ i ] = .30;
+      }
 
 
 
@@ -160,6 +173,22 @@ function init() {
     for(var j = 0; j < geo.attributes.position.count; j++) {
         vectorPosDisplacementArrayVal.push(Math.random() * 10)
     }
+
+
+
+
+
+
+      geo.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+      // geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+
+
+
+
+
+
+
+
 
 
     // now populate the array of attributes
@@ -246,10 +275,11 @@ function render() {
     // sphere.geometry.attributes.color.needsUpdate = true;
     // sphere.geometry.attributes.displacement.dynamic = true;
     particleSystem.geometry.colorsNeedUpdate =true
+
     geometry.verticesNeedUpdate = true;
     // console.log(uniforms["color"].value)
     // console.log(new THREE.Color(matrix.particleOne))
-    uniforms["color"].value = new THREE.Color(matrix.particleOne)
+    uniforms["color"].value = new THREE.Color(matrix.ballColor)
 
     for (var j = 0; j < geometry.colors.length; j++){
       var r, g, b;
@@ -258,10 +288,11 @@ function render() {
       // Math.sin(frame)/Math.sin(Math.abs(timeFloatData[j]))
       sphere.geometry.attributes.displacement.dynamic = true
       sphere.geometry.attributes.displacement.needsUpdate = true
+      geo.attributes.customColor.needsUpdate = true;
       // console.log(Math.sin(frame/timeFloatData[j]))
 
       // big one Math.sin(frame/timeFloatData[j])/Math.sin(Math.abs(timeFloatData[j]))
-      uniforms.amplitude.value = Math.abs(timeFloatData[j]) * 10 || 1
+      uniforms.amplitude.value = Math.abs(timeFloatData[j]) * 50 || 1
 
       // sphere.geometry.attributes.displacement.array[j] = timeFloatData[j]
 
