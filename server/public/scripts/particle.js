@@ -98,14 +98,14 @@ var color;
 
 function init() {
   // making these globals just for debugging purposes
-    var numOfParticles = 200000;
+    var numOfParticles = 2024;
      // geometry = new THREE.Geometry();
       geometry = new THREE.BufferGeometry();
       geometry.dynamic = true;
       var positions = new Float32Array( numOfParticles * 3 );
       var colors = new Float32Array( numOfParticles * 3 );
       var sizes = new Float32Array( numOfParticles );
-       color = new THREE.Color();
+      color = new THREE.Color();
 
     // for (var i = 0; i < 100000; i++) {
 
