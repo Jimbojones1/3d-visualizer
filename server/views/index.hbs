@@ -18,11 +18,12 @@
     precision highp float;
     #endif
 
-    attribute vec3 customColor;
-    uniform float amplitude;
+    attribute vec3 userColor;
+    attribute float size;
+    // uniform float amplitude;
     attribute float displacement;
     varying vec3 vNormal;
-    varying vec3 p;
+    // varying vec3 p;
     varying vec3 vColor;
     // varying vec3 vColor;
     // varying float amplitude;
@@ -30,8 +31,10 @@
 
       vNormal = normal;
 
-      vColor  = customColor;
+      vColor  = userColor;
 
+      // gl_PointSize — contains size of rasterized points, in pixels
+      gl_PointSize = size;
       // p = position;
       // multiply our displacement by the
       // amplitude. The amp will get animated
@@ -40,7 +43,7 @@
       // so we'll have animated displacement
       vec3 newPosition = position +
                  normal *
-                 vec3((displacement * amplitude)/2.0);
+                 vec3(displacement);
 
       gl_Position = projectionMatrix *
               modelViewMatrix *
@@ -64,9 +67,10 @@
     precision highp float;
     #endif
 
-    uniform vec3 color;
-    uniform float amplitude;
+    // uniform vec3 color;
+    // uniform float amplitude;
     varying vec3 vNormal;
+    uniform sampler2D texture;
     // varying vec3 p;
     vec3 r;
     varying vec3 vColor;
@@ -76,7 +80,7 @@
 
       // calc the dot product and clamp
       // 0 -> 1 rather than -1 -> 1
-      vec3 light = vec3(0.5, 0.8, 1.0);
+      vec3 light = vec3(0.8, 1.0, 0.6);
 
       // ensure it's normalized
       light = normalize(light);
@@ -84,27 +88,16 @@
       // vec3 c = vec3(colors);
       // calculate the dot product of
       // the light to the vertex normal
-      float dProd = max(0.1, dot(vNormal, light));
+      float dProd = max(0.9, dot(vNormal, light));
 
-      //  if(p.x > 0.25 && p.x < 2.4)
-      //  {
-      //  // vec3 co = vec3(1, 1, 1);
-      //   r = vec3(sin(0.3), 0.3, 0.3);
-      // }
-      // else if (p.x > 0.10 && p.y > 1.5)
-      // {
-      //   r = vec3(0.8, 0.9, 0.9);
-      // }
-      // else {
-      //    r = vec3(0.4, 0.9, 0.9);
-      // };
+
 
 
 
        // vec3 r = vec3(0.9, 0.9, 0.9);
      // feed into our frag colour
       // gl_FragColor = gl_FragColor;  // A
-      gl_FragColor = vec4(vColor, 1.0);
+      gl_FragColor = vec4(vColor[0] * dProd, vColor[1] * dProd, vColor[2] * dProd, 1.0) * texture2D(texture, gl_PointCoord);
     }
 
 // cos(p.x * amplitude), // R
