@@ -28,7 +28,7 @@
 
       vColor  = customColor;
 
-      // p = position;
+      p = position;
       // multiply our displacement by the
       // amplitude. The amp will get animated
 
@@ -63,7 +63,7 @@
     uniform vec3 color;
     uniform float amplitude;
     varying vec3 vNormal;
-    // varying vec3 p;
+    varying vec3 p;
     vec3 r;
     varying vec3 vColor;
 
@@ -103,10 +103,13 @@
       gl_FragColor = vec4(vColor, 1.0);
     }
 
-// cos(p.x * amplitude), // R
-//                           sin(p.z * amplitude), // G
-//                           sin(p.y * amplitude), // B
-//                           amplitude
+
+//make it a vec3 stupid head
+ // gl_FragColor = vec4(
+ //                  cos(p.x * amplitude), // R
+ //                  sin(p.z * amplitude), // G
+ //                  sin(p.y * amplitude), // B
+ //                            amplitude)
 
 
 
