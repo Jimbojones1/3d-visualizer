@@ -93,9 +93,9 @@
        // vec3 r = vec3(0.9, 0.9, 0.9);
      // feed into our frag colour
       // gl_FragColor = gl_FragColor;  // A
-      gl_FragColor = vec4(cos(p.x), // R
-                          0.9, // G
-                          cos(p.y), // B
+      gl_FragColor = vec4(sin(p.x), // R
+                          sin(p.x) + cos(p.y), // G
+                          cos(p.y) * sin(p.x), // B
                           1
       );
     }

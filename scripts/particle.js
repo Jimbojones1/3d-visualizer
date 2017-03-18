@@ -68,6 +68,18 @@ gui.addColor(matrix, 'particleThree').name('Color 3');
 // var stats = new Stats();
 // stats.showPanel( 0 );
 // document.body.appendChild( stats.dom );
+
+function calcFieldOFView(){
+  var vFOV = camera.fov * Math.PI / 180;        // convert vertical fov to radians
+  var height = 2 * Math.tan( vFOV / 2 ) * 40; // visible height
+
+  var aspect = window.innerWidth / window.innerHeight;
+  var width = height * aspect;
+  return width / 2
+}
+
+
+
 init();
 var circle;
 function init() {
@@ -76,27 +88,16 @@ function init() {
             min    =  5,
            max     = 70;
 
-      function calcFieldOFView(){
-        var vFOV = camera.fov * Math.PI / 180;        // convert vertical fov to radians
-        var height = 2 * Math.tan( vFOV / 2 ) * 40; // visible height
 
-        var aspect = window.innerWidth / window.innerHeight;
-        var width = height * aspect;
-        return width / 2
-      }
-      console.log(calcFieldOFView())
+
       var geometry = new THREE.CircleGeometry( 2, 32 );
       var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
       var circle   = new THREE.Mesh( geometry, material );
 
-      var maxWidthPos = calcFieldOFView();
-      var maxWidthNeg = -calcFieldOFView();
-      var maxHeightPos = calcFieldOFView();
-      var maxHeightNeg = -calcFieldOFView();
-
-         var inc = 0
+      var inc = 0
       for (var i = 0; i < 2000; i++){
-        var radius = Math.floor(Math.random() * 5)
+
+        var radius = Math.floor(Math.random() * 4)
 
         if(radius === 0){
           radius = 2
@@ -125,37 +126,37 @@ function init() {
         }
         var x, y;
         if(whichAxis){
-          x = Math.random() * 36;
+          x = Math.random() * calcFieldOFView();
 
 
 
                   if(Math.random() > .5){
-                     y = (Math.random() * 36);
+                     y = (Math.random() * calcFieldOFView());
                   }
                   else{
-                     y = -(Math.random() * 36);
+                     y = -(Math.random() * calcFieldOFView());
                   }
 
 
 
         }
         else {
-          x = -(Math.random() * 36);
+          x = -(Math.random() * calcFieldOFView());
 
 
 
                   if(Math.random() > .5){
-                     y = (Math.random() * 36);
+                     y = (Math.random() * calcFieldOFView());
                   }
                   else{
-                     y = -(Math.random() * 36);
+                     y = -(Math.random() * calcFieldOFView());
                   }
 
 
 
         }
 
-        ci.position.set(x, y, Math.random() * 36 );
+        ci.position.set(x, y, 0 );
         scene.add( ci );
 
       }
