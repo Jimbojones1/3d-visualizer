@@ -13,6 +13,7 @@ container = document.createElement('div');
 container.setAttribute('id', 'container');
 document.body.appendChild(container);
 camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+// camera.up.set( 0, 0, 1 );
 camera.position.set( 0, 0, 50 );
 scene = new THREE.Scene();
 renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true});
@@ -68,24 +69,106 @@ gui.addColor(matrix, 'particleThree').name('Color 3');
 // stats.showPanel( 0 );
 // document.body.appendChild( stats.dom );
 init();
-
+var circle;
 function init() {
 
        var circles = [],
             min    =  5,
            max     = 70;
 
+      function calcFieldOFView(){
+        var vFOV = camera.fov * Math.PI / 180;        // convert vertical fov to radians
+        var height = 2 * Math.tan( vFOV / 2 ) * 40; // visible height
 
-      geometry = new THREE.CircleBufferGeometry( min, 32 );
+        var aspect = window.innerWidth / window.innerHeight;
+        var width = height * aspect;
+        return width / 2
+      }
+      console.log(calcFieldOFView())
+      var geometry = new THREE.CircleGeometry( 2, 32 );
       var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
       var circle   = new THREE.Mesh( geometry, material );
 
+      var maxWidthPos = calcFieldOFView();
+      var maxWidthNeg = -calcFieldOFView();
+      var maxHeightPos = calcFieldOFView();
+      var maxHeightNeg = -calcFieldOFView();
+
+         var inc = 0
+      for (var i = 0; i < 2000; i++){
+        var radius = Math.floor(Math.random() * 5)
+
+        if(radius === 0){
+          radius = 2
+        }
+        var geometry = new THREE.CircleGeometry( radius, 32 );
+
+        var shaderMaterial = new THREE.ShaderMaterial({
+          vertexShader:   document.getElementById('vertexShader').textContent,
+          fragmentShader: document.getElementById('fragmentShader').textContent,
+        })
+
+        var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+        var ci   = new THREE.Mesh( geometry, shaderMaterial );
+        var position = ci.position.x
+        if(inc === 0){
+          inc = 4
+        }
+
+        var whichAxis;
+
+        if(Math.random() > 0.5 ){
+          whichAxis = true;
+        }
+        else {
+          whichAxis = false
+        }
+        var x, y;
+        if(whichAxis){
+          x = Math.random() * 36;
+
+
+
+                  if(Math.random() > .5){
+                     y = (Math.random() * 36);
+                  }
+                  else{
+                     y = -(Math.random() * 36);
+                  }
+
+
+
+        }
+        else {
+          x = -(Math.random() * 36);
+
+
+
+                  if(Math.random() > .5){
+                     y = (Math.random() * 36);
+                  }
+                  else{
+                     y = -(Math.random() * 36);
+                  }
+
+
+
+        }
+
+        ci.position.set(x, y, Math.random() * 36 );
+        scene.add( ci );
+
+      }
+
+      // console.log(circle.position.x)
+      var axes = new THREE.AxisHelper(200);
+      scene.add(axes);
 
 
       color = new THREE.Color();
 
 
-    draw()
+    // draw()
     var counter = 0
     function draw(){
       var c = createCircle();
@@ -102,7 +185,7 @@ function init() {
 
 
     function createCircle(){
-          return [new THREE.CircleBufferGeometry( 10, 32 ),
+          return [new THREE.CircleBufferGeometry( 5, 32 ),
                   new THREE.MeshBasicMaterial( { color: 0xffff00 }) ]
       }
 
@@ -137,7 +220,6 @@ function init() {
 
 
 
-      scene.add( circle );
      //      numOfParticles = 20024;
      // // geometry = new THREE.Geometry();
      //  geometry = new THREE.BufferGeometry();
@@ -354,18 +436,18 @@ function render() {
 
     matrix.angle += matrix.animationSpeed;
 
-    var x = camera.position.x;
-    var z = camera.position.z;
-    camera.position.x = x * Math.cos(matrix.zoomSpeed) - z * Math.sin(matrix.zoomSpeed);
-    camera.position.z = z * Math.cos(matrix.zoomSpeed) + x * Math.sin(matrix.zoomSpeed);
-
+    // var x = camera.position.x;
     // var z = camera.position.z;
-    var y = camera.position.y;
-    camera.position.y = y * Math.cos(matrix.zoomSpeed) + z * Math.sin(matrix.zoomSpeed);
-    camera.position.z = z
-    var rotationMatrix = new THREE.Matrix4().m
+    // camera.position.x = x * Math.cos(matrix.zoomSpeed) - z * Math.sin(matrix.zoomSpeed);
+    // camera.position.z = z * Math.cos(matrix.zoomSpeed) + x * Math.sin(matrix.zoomSpeed);
 
+    // // var z = camera.position.z;
+    // var y = camera.position.y;
+    // camera.position.y = y * Math.cos(matrix.zoomSpeed) + z * Math.sin(matrix.zoomSpeed);
+    // camera.position.z = z
+    // var rotationMatrix = new THREE.Matrix4().m
 
+   camera.position.set(0, 0, 40)
 
     camera.lookAt(scene.position);
     renderer.render(scene, camera);
