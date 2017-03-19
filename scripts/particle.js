@@ -47,6 +47,7 @@ var GuiControls = function(){
     this.sizeIntensity = 2.5;
     this.animate = true;
     this.camera = true;
+    this.z = 40;
 
 };
 
@@ -77,6 +78,9 @@ function calcFieldOFView(){
   var width = height * aspect;
   return width / 2
 }
+var circles = [],
+            min    =  5,
+           max     = 70;
 
 
 
@@ -84,82 +88,10 @@ init();
 var circle;
 function init() {
 
-       var circles = [],
-            min    =  5,
-           max     = 70;
 
-
-
-      var geometry = new THREE.CircleGeometry( 2, 32 );
-      var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-      var circle   = new THREE.Mesh( geometry, material );
-
-      var inc = 0
-      for (var i = 0; i < 2000; i++){
-
-        var radius = Math.floor(Math.random() * 4)
-
-        if(radius === 0){
-          radius = 2
-        }
-        var geometry = new THREE.CircleGeometry( radius, 32 );
-
-        var shaderMaterial = new THREE.ShaderMaterial({
-          vertexShader:   document.getElementById('vertexShader').textContent,
-          fragmentShader: document.getElementById('fragmentShader').textContent,
-        })
-
-        var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-        var ci   = new THREE.Mesh( geometry, shaderMaterial );
-        var position = ci.position.x
-        if(inc === 0){
-          inc = 4
-        }
-
-        var whichAxis;
-
-        if(Math.random() > 0.5 ){
-          whichAxis = true;
-        }
-        else {
-          whichAxis = false
-        }
-        var x, y;
-        if(whichAxis){
-          x = Math.random() * calcFieldOFView();
-
-
-
-                  if(Math.random() > .5){
-                     y = (Math.random() * calcFieldOFView());
-                  }
-                  else{
-                     y = -(Math.random() * calcFieldOFView());
-                  }
-
-
-
-        }
-        else {
-          x = -(Math.random() * calcFieldOFView());
-
-
-
-                  if(Math.random() > .5){
-                     y = (Math.random() * calcFieldOFView());
-                  }
-                  else{
-                     y = -(Math.random() * calcFieldOFView());
-                  }
-
-
-
-        }
-
-        ci.position.set(x, y, 0 );
-        scene.add( ci );
-
-      }
+      //   // if(radius === 0){
+      //   //   radius = 2
+      //   // }
 
       // console.log(circle.position.x)
       var axes = new THREE.AxisHelper(200);
@@ -169,119 +101,150 @@ function init() {
       color = new THREE.Color();
 
 
-    // draw()
+    draw()
     var counter = 0
     function draw(){
       var c = createCircle();
 
+      var ci   = new THREE.Mesh( c["geometry"], c["shaderMaterial"] );
+
+
+         var whichAxis;
+
+          if(Math.random() > 0.5 ){
+            whichAxis = true;
+          }
+          else {
+            whichAxis = false
+          }
+          var x, y;
+          if(whichAxis){
+            x = Math.random() * calcFieldOFView();
+
+
+
+                    if(Math.random() > .5){
+                       y = (Math.random() * calcFieldOFView());
+                    }
+                    else{
+                       y = -(Math.random() * calcFieldOFView());
+                    }
+
+
+
+          }
+          else {
+            x = -(Math.random() * calcFieldOFView());
+
+
+
+                    if(Math.random() > .5){
+                       y = (Math.random() * calcFieldOFView());
+                    }
+                    else{
+                       y = -(Math.random() * calcFieldOFView());
+                    }
+
+
+
+          }
+
+          isValid(ci)
+
+
+          // scene.add( ci );
+          // c.x =  2  * Math.random() * width;
+          // c.y = Math.random() * height
+          // counter++;
+          // if(counter > 50000){
+          //   return;
+          // }
 
       counter++
-     if(counter > 40){
+     if(counter > 200){
           return;
       }
-      circles.push(c)
-      drawCircle(c)
+
+      circles.push(ci)
+      drawCircle(ci, x, y)
       requestAnimationFrame(draw)
     }
 
 
     function createCircle(){
-          return [new THREE.CircleBufferGeometry( 5, 32 ),
-                  new THREE.MeshBasicMaterial( { color: 0xffff00 }) ]
-      }
-
-    function drawCircle(c){
-      console.log('drw')
-      console.log(c[0])
-      var positions = new Float32Array( 102);
-
-      var circ = new THREE.Mesh( c[0], c[1]);
-
-      for ( var i = 0, vert = 0; i < 102; i ++, vert += 3 ) {
-       c[0].attributes.position.array[ vert + 0 ] = geometry.attributes.position.array[ vert + 0 ] * Math.random() * window.innerHeight/2
-       c[0].attributes.position.array[ vert + 1 ] = geometry.attributes.position.array[ vert + 2 ] * Math.random() * window.innerWidth/2
-       c[0].attributes.position.array[ vert + 2 ] = geometry.attributes.position.array[ vert + 3 ] * 0
-      }
-      c[0].attributes.position.dynamic = true
-      c[0].attributes.position.needUpdate = true;
-       scene.add(circ)
+        var radius = Math.floor(Math.random() * 5) + 1
+        // geometry.radius = radius;
+      return    {
+                geometry: new THREE.CircleGeometry( radius, 32 ),
+          shaderMaterial: new THREE.ShaderMaterial({
+                            vertexShader:   document.getElementById('vertexShader').textContent,
+                            fragmentShader: document.getElementById('fragmentShader').textContent
+                          })
+               }
     }
 
 
 
+    function isValid(c){
+      // if(c.r > max){
+      //   return false
+      // }
+      console.log(c)
+
+      for(var i = 0; i < circles.length; i++){
+        var c2 = circles[i];
+        console.log(c2.geometry.boundingSphere.radius, c.geometry.boundingSphere.radius)
+
+        var sphereOneRadius = c.geometry.boundingSphere.radius;
+        var sphereTwoRadius = c2.geometry.boundingSphere.radius
+          // ci.position.set(x, y, 0 );
+        // find the distance of the circle passed in to each circle;
+
+        dx = Math.pow((c2.position.x - c.position.x), 2);
+        dy = Math.pow((c2.position.y - c.position.y), 2);
+        dz = Math.pow((c2.position.z - c.position.z), 2);
+
+
+        k = Math.sqrt(dx + dy + dz)
+        dist = k - c.geometry.boundingSphere.radius
+        // console.log(dist, sphereOneRadius,sphereTwoRadius)
+        // if the distance of the radi is less then the sum of the radius(aka diameter)
+        // then they are touching
+        if(dist < c2.geometry.boundingSphere.radius + c.geometry.boundingSphere.radius + 50){
+          console.log('fals is happening')
+          console.log(dist, sphereOneRadius, sphereTwoRadius)
+
+          return false;
+        }
+      }
+
+
+
+      return true;
+    }
+
+    function drawCircle(ci,x,y){
+
+      ci.position.set(x, y, 0 )
+      scene.add( ci );
+
+
+    }
+
+
+
+      // for ( var i = 0, vert = 0; i < 102; i ++, vert += 3 ) {
+      //  c[0].attributes.position.array[ vert + 0 ] = geometry.attributes.position.array[ vert + 0 ] * Math.random() * window.innerHeight/2
+      //  c[0].attributes.position.array[ vert + 1 ] = geometry.attributes.position.array[ vert + 2 ] * Math.random() * window.innerWidth/2
+      //  c[0].attributes.position.array[ vert + 2 ] = geometry.attributes.position.array[ vert + 3 ] * 0
+      // }
+      // c[0].attributes.position.dynamic = true
+      // c[0].attributes.position.needUpdate = true;
 
 
 
 
 
-
-
-
-
-
-
-
-     //      numOfParticles = 20024;
-     // // geometry = new THREE.Geometry();
-     //  geometry = new THREE.BufferGeometry();
-     //  geometry.dynamic = true;
-
-
-     //  var texture = new THREE.TextureLoader().load( "./images/spark1.png" );
-
-
-     //  uniforms = {
-     //    "amplitude": { value: 1 },
-     //      "color": { value: new THREE.Color( 0xff2200 ) },
-     //      "texture": { value: texture },
-     //      "hippie": { value: false}
-     //  }
-
-     //  var shaderMaterial = new THREE.ShaderMaterial({
-     //    uniforms: uniforms,
-     //    vertexShader:   document.getElementById('vertexShader').textContent,
-     //    fragmentShader: document.getElementById('fragmentShader').textContent,
-     //    depthTest: false,
-     //    blending: THREE.AdditiveBlending,
-     //    transparent: true
-     //  })
-
-     //    var material = new THREE.PointsMaterial( {
-     //      vertexColors: THREE.VertexColors,
-     //      depthTest: false,
-     //      opacity: 1,
-     //      sizeAttenuation: true
-     //  } );
-
-     //    // var dirLight = new THREE.DirectionalLight(0xffffff, 1);
-     //    // dirLight.position.set(100, 100, 50);
-     //    // scene.add(dirLight);
-
-     //  var radius = 200;
-
-     //  var ratio = numOfParticles/(Math.PI*2)
-
-     //  for ( var i = 0, vert = 0; i < numOfParticles; i ++, vert += 3 ) {
-     //    positions[ vert + 0 ] = 20 * Math.sin(i/10) * Math.cos(i);
-     //    positions[ vert + 1 ] = 20 * Math.cos(i/10);
-     //    positions[ vert + 2 ] = 20 * Math.sin(i) * Math.sin(i/10);
-     //    color.setRGB(1, 0.5, 1);
-     //    colors[ vert + 0 ] = color.r;
-     //    colors[ vert + 1 ] = color.g;
-     //    colors[ vert + 2 ] = color.b;
-     //    sizes[ i ] = 1;
-     //  }
-
-
-     //  geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-     //  geometry.addAttribute( 'userColor', new THREE.BufferAttribute( colors, 3 ) );
-     //  geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
-
-     //  geometry.attributes.size.dynamic = true
-     //  // geometry.addAttribute()
-     //  // geometry.attributes.customColor.needsUpdate = true;
-     //  particleSystem = new THREE.Points( geometry, shaderMaterial );
-     //  scene.add( particleSystem );
 
 
 
