@@ -1,0 +1,157 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+
+
+<script type="x-shader/x-vertex" id="vertexShader">
+
+
+
+    // switch on high precision floats
+    #ifdef GL_ES
+    precision highp float;
+    #endif
+
+    uniform vec3 color;
+    attribute float size;
+    uniform float amplitude;
+    attribute float displacement;
+    varying vec3 vNormal;
+    varying vec3 p;
+    varying vec3 vColor;
+    // varying vec3 vColor;
+    varying float musicBox;
+    void main() {
+
+      vNormal = normal;
+
+      vColor  = color;
+      musicBox = amplitude;
+      // gl_PointSize — contains size of rasterized points, in pixels
+      // gl_PointSize = size;
+      p = position;
+      // multiply our displacement by the
+      // amplitude. The amp will get animated
+
+      // amplitude = displacement * 2.0;
+      // so we'll have animated displacement
+      // vec3 newPosition = position +
+      //            normal *
+      //            vec3(displacement);
+
+      gl_Position = projectionMatrix *
+              modelViewMatrix *
+              vec4(position,2.5);
+    }
+
+
+
+
+
+</script>
+
+
+<script type="x-shader/x-vertex" id="fragmentShader">
+
+
+// same name and type as VS
+
+
+    #ifdef GL_ES
+    precision highp float;
+    #endif
+
+    // uniform vec3 color;
+    // uniform float amplitude;
+    varying vec3 vNormal;
+    uniform sampler2D texture;
+    varying vec3 p;
+    // vec3 r;
+    varying vec3 vColor;
+     varying float musicBox;
+    void main()
+    {
+
+      // calc the dot product and clamp
+      // // 0 -> 1 rather than -1 -> 1
+      vec3 light = vec3(0.8, 1.0, 0.6);
+
+      // // ensure it's normalized
+      light = normalize(light);
+
+      // // vec3 c = vec3(colors);
+      // // calculate the dot product of
+      // // the light to the vertex normal
+      float dProd = max(0.9, dot(vNormal, light));
+
+      // if(p.x < 0.0  && p.y > 0.0){
+
+      //        gl_FragColor = vec4(sin(p.y) * 0.1, // R
+      //                      sin(p.y) + cos(p.y) * dProd, // G
+      //                      cos(p.y) * dProd, // B
+      //                     1
+      // );
+
+
+      // }else {
+
+      //        gl_FragColor = vec4(
+      //         sin(vColor[0]) + musicBox + dProd,
+      //         cos(vColor[1]) * dProd + musicBox,
+      //         cos(vColor[2]) * dProd + musicBox,
+      //        1);
+
+
+      // }
+
+
+
+       // vec3 r = vec3(0.9, 0.9, 0.9);
+     // feed into our frag colour
+      // gl_FragColor = gl_FragColor;  // A
+
+      gl_FragColor = vec4(vColor[0]  + musicBox, // R
+                          vColor[1] + musicBox, // G
+                          vColor[2]  + musicBox, // B
+                          1
+      );
+
+
+    }
+
+
+// gl_FragColor = vec4(
+ //                  cos(p.x * amplitude), // R
+ //                  sin(p.z * amplitude), // G
+ //                  sin(p.y * amplitude), // B
+ //                            amplitude)
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<body>
+<p id="notification"> click here for mic input, or drag a song</p>
+<script src="scripts/three.min.js"></script>
+<script src="scripts/velocity.min.js"></script>
+<script src="scripts/dat.gui.min.js"></script>
+<script src="scripts/stats.min.js"></script>
+<script src="scripts/audioLoader.js"></script>
+<script src="scripts/OrbitControls.js"></script>
+<script src="scripts/particle.js"></script>
+</body>
