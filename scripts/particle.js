@@ -47,7 +47,7 @@ var GuiControls = function(){
     this.sizeIntensity = 2.5;
     this.animate = true;
     this.camera = true;
-    this.z = 40;
+    this.z = 30;
 
 };
 
@@ -55,6 +55,7 @@ var matrix = new GuiControls();
 
 var gui = new dat.GUI();
 gui.closed = true;
+gui.add(matrix, 'z', 0, 200).step(1).name('z');
 gui.add(matrix, 'angle', 0, 25).step(0.1).name('Particle Angle');
 gui.add(matrix, 'animationSpeed', 0.01, 10).step(0.01).name('Animation Speed');
 gui.add(matrix, 'intensity', 0.5, 5).step(0.1).name('Vibration Intensity');
@@ -79,13 +80,15 @@ function calcFieldOFView(){
   return width / 2
 }
 var circles = [],
-            min    =  5,
-           max     = 70;
+            min    =  0.5,
+           max     = 11;
 
 
 
 init();
 var circle;
+var mesh;
+var counter;
 function init() {
 
 
@@ -98,15 +101,111 @@ function init() {
       scene.add(axes);
 
 
-      color = new THREE.Color();
+
+
+
+    //   color = new THREE.Color();
 
 
     draw()
-    var counter = 0
+    counter = 0
     function draw(){
       var c = createCircle();
 
-      var ci   = new THREE.Mesh( c["geometry"], c["shaderMaterial"] );
+
+        while(!isValid(c)){
+
+
+
+           var whichAxis;
+
+          if(Math.random() > 0.5 ){
+            whichAxis = true;
+          }
+          else {
+            whichAxis = false
+          }
+          var x, y;
+          if(whichAxis){
+            x = Math.random() * 26;
+
+
+
+                    if(Math.random() > .5){
+                       y = (Math.random() * 15);
+                    }
+                    else{
+                       y = -(Math.random() * 15);
+                    }
+
+
+
+          }
+          else {
+            x = -(Math.random() * 26);
+
+
+
+                    if(Math.random() > .5){
+                       y = (Math.random() * 15);
+                    }
+                    else{
+                       y = -(Math.random() * 15);
+                    }
+
+
+
+          }
+
+              c.position.set(x,y, 0)
+
+             counter++
+             if(counter > 200000){
+                  return;
+              }
+        }
+
+
+
+       while(isValid(c)){
+    // increase it up intil the point it hits another circle
+          // c.geometry.verticesNeedUpdate = true
+          c.geometry.radius = c.geometry.radius + 0.5
+          // c.scale.x++
+          // c.scale.y++
+
+
+        }
+
+
+
+        c.geometry.radius -= 0.3
+          // scene.add( ci );
+          // c.x =  2  * Math.random() * width;
+          // c.y = Math.random() * height
+          // counter++;
+          // if(counter > 50000){
+          //   return;
+          // }
+
+
+
+      circles.push(c)
+      drawCircle(c)
+      requestAnimationFrame(draw)
+    }
+
+
+    function createCircle(){
+      var radius = 1;
+
+
+      // var circleShape = new THREE.Shape();
+      // circleShape.moveTo(0, radius);
+      // circleShape.quadraticCurveTo( radius, radius, radius, 0 );
+      // circleShape.quadraticCurveTo( radius, -radius, 0, -radius );
+      // circleShape.quadraticCurveTo( -radius, -radius, -radius, 0 );
+      // circleShape.quadraticCurveTo( -radius, radius, 0, radius );
 
 
          var whichAxis;
@@ -119,113 +218,101 @@ function init() {
           }
           var x, y;
           if(whichAxis){
-            x = Math.random() * calcFieldOFView();
+            x = Math.random() * 26;
 
 
 
                     if(Math.random() > .5){
-                       y = (Math.random() * calcFieldOFView());
+                       y = (Math.random() * 15);
                     }
                     else{
-                       y = -(Math.random() * calcFieldOFView());
+                       y = -(Math.random() * 15);
                     }
 
 
 
           }
           else {
-            x = -(Math.random() * calcFieldOFView());
+            x = -(Math.random() * 26);
 
 
 
                     if(Math.random() > .5){
-                       y = (Math.random() * calcFieldOFView());
+                       y = (Math.random() * 15);
                     }
                     else{
-                       y = -(Math.random() * calcFieldOFView());
+                       y = -(Math.random() * 15);
                     }
 
 
 
           }
 
-          isValid(ci)
 
 
-          // scene.add( ci );
-          // c.x =  2  * Math.random() * width;
-          // c.y = Math.random() * height
-          // counter++;
-          // if(counter > 50000){
-          //   return;
-          // }
-
-      counter++
-     if(counter > 200){
-          return;
-      }
-
-      circles.push(ci)
-      drawCircle(ci, x, y)
-      requestAnimationFrame(draw)
-    }
 
 
-    function createCircle(){
-        var radius = Math.floor(Math.random() * 5) + 1
+
+
+
+
+
+     var sphere = new THREE.SphereGeometry(min, 32)
         // geometry.radius = radius;
-      return    {
-                geometry: new THREE.CircleGeometry( radius, 32 ),
-          shaderMaterial: new THREE.ShaderMaterial({
+
+      var shaderMaterial = new THREE.ShaderMaterial({
                             vertexShader:   document.getElementById('vertexShader').textContent,
-                            fragmentShader: document.getElementById('fragmentShader').textContent
+                            fragmentShader: document.getElementById('fragmentShader').textContent,
+                            blending: THREE.additiveBlending
                           })
-               }
+
+      var mesh = new THREE.Mesh( sphere, shaderMaterial );
+      mesh.geometry.radius = min
+      mesh.position.set(x, y, 0)
+
+     return mesh
+
+
     }
 
 
 
     function isValid(c){
-      // if(c.r > max){
-      //   return false
-      // }
-      console.log(c)
+      if(c.geometry.radius > max){
+        return false
+      }
+
+      var count = 0
+
 
       for(var i = 0; i < circles.length; i++){
         var c2 = circles[i];
-        console.log(c2.geometry.boundingSphere.radius, c.geometry.boundingSphere.radius)
 
-        var sphereOneRadius = c.geometry.boundingSphere.radius;
-        var sphereTwoRadius = c2.geometry.boundingSphere.radius
-          // ci.position.set(x, y, 0 );
         // find the distance of the circle passed in to each circle;
+        dx = c2.position.x - c.position.x;
+        dy = c2.position.y - c.position.y;
 
-        dx = Math.pow((c2.position.x - c.position.x), 2);
-        dy = Math.pow((c2.position.y - c.position.y), 2);
-        dz = Math.pow((c2.position.z - c.position.z), 2);
-
-
-        k = Math.sqrt(dx + dy + dz)
-        dist = k - c.geometry.boundingSphere.radius
-        // console.log(dist, sphereOneRadius,sphereTwoRadius)
-        // if the distance of the radi is less then the sum of the radius(aka diameter)
+        // var k = Math.sqrt(dx + dy)
+        // var dist = k - c.geometry.radius + c2.geometry.radius
+        var dista = Math.sqrt(dx * dx + dy * dy)
+        // console.log(dista, ' in flase', c.geometry.radius, c2.geometry.radius)
+        // if the distance of the radi is less then the sum of the radius
         // then they are touching
-        if(dist < c2.geometry.boundingSphere.radius + c.geometry.boundingSphere.radius + 50){
-          console.log('fals is happening')
-          console.log(dist, sphereOneRadius, sphereTwoRadius)
+        if(dista < c.geometry.radius/3.5+ c2.geometry.radius/3.5 ){
+          // console.log(dist, dy, dx )
 
           return false;
         }
       }
 
-
-
       return true;
     }
 
-    function drawCircle(ci,x,y){
 
-      ci.position.set(x, y, 0 )
+    function drawCircle(ci,x,y){
+      console.log(ci.geometry.radius)
+      console.log(ci)
+      ci.scale.set(ci.geometry.radius, ci.geometry.radius, ci.geometry.radius)
       scene.add( ci );
 
 
@@ -244,6 +331,10 @@ function init() {
 
 
 
+   camera.position.set(0, 0, matrix.z)
+
+    camera.lookAt(scene.position);
+    renderer.render(scene, camera);
 
 
 
@@ -411,7 +502,7 @@ function render() {
     // camera.position.z = z
     // var rotationMatrix = new THREE.Matrix4().m
 
-   camera.position.set(0, 0, 40)
+   camera.position.set(0, 0, matrix.z)
 
     camera.lookAt(scene.position);
     renderer.render(scene, camera);
