@@ -105,7 +105,7 @@ var numOfParticles;
 
 function init() {
   // making these globals iust for debugging purposes
-      numOfParticles = 20024;
+      numOfParticles = 2024;
      // geometry = new THREE.Geometry();
       geometry = new THREE.BufferGeometry();
       geometry.dynamic = true;
@@ -129,7 +129,7 @@ function init() {
         vertexShader:   document.getElementById('vertexShader').textContent,
         fragmentShader: document.getElementById('fragmentShader').textContent,
         depthTest: false,
-        blending: THREE.AdditiveBlending,
+        // blending: THREE.AdditiveBlending,
         transparent: true
       })
 
@@ -152,7 +152,7 @@ function init() {
         positions[ vert + 0 ] = 20 * Math.sin(i/10) * Math.cos(i);
         positions[ vert + 1 ] = 20 * Math.cos(i/10);
         positions[ vert + 2 ] = 20 * Math.sin(i) * Math.sin(i/10);
-        color.setRGB(1, 0.5, 1);
+        color.setRGB(Math.random(), Math.random(), Math.random());
         colors[ vert + 0 ] = color.r;
         colors[ vert + 1 ] = color.g;
         colors[ vert + 2 ] = color.b;
@@ -313,20 +313,20 @@ function render() {
 
 
         if(i%3 !== 0 && i%2 !==0){
-            color.setHex(matrix.particleOne)
-            setColor(vert, i, timeFloatData)
+            // color.setHex(matrix.particleOne)
+            // setColor(vert, i, timeFloatData)
 
             // twinkle me timbers
-            // geometry.attributes.size.array[i] = matrix.size * (timeFloatData[i] * 10);
+            geometry.attributes.size.array[i] = matrix.size * (timeFloatData[i] * 10);
          }
         else if (i%2 === 0){
-            color.setHex(matrix.particleTwo)
-            // setPosition(vert, i)
-            setColor(vert, i, timeFloatData)
+            // color.setHex(matrix.particleTwo)
+            // // setPosition(vert, i)
+            // setColor(vert, i, timeFloatData)
         }
         else if(i%3 === 0){
-            color.setHex(matrix.particleThree)
-            setColor(vert, i, timeFloatData)
+            // color.setHex(matrix.particleThree)
+            // setColor(vert, i, timeFloatData)
             // var num = i + 100
             // setPosition(vert, num)
         }

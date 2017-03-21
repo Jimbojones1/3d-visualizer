@@ -80,7 +80,7 @@
 
       // calc the dot product and clamp
       // 0 -> 1 rather than -1 -> 1
-      vec3 light = vec3(0.8, 1.0, 0.6);
+      vec3 light = vec3(0.9, 1.0, 0.6);
 
       // ensure it's normalized
       light = normalize(light);
@@ -97,7 +97,8 @@
        // vec3 r = vec3(0.9, 0.9, 0.9);
      // feed into our frag colour
       // gl_FragColor = gl_FragColor;  // A
-      gl_FragColor = vec4(vColor[0] * dProd, vColor[1] * dProd, vColor[2] * dProd, 1.0) * texture2D(texture, gl_PointCoord);
+       gl_FragColor = vec4(vColor[0], vColor[1] * dProd, vColor[2] * dProd, 1.0) * texture2D(texture, gl_PointCoord);
+      // gl_FragColor = vec4(vColor[0], vColor[1] * dProd, vColor[2] * dProd, 1.0) * texture2D(texture, gl_PointCoord);
     }
 
 // cos(p.x * amplitude), // R

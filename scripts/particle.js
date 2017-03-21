@@ -71,6 +71,7 @@ gui.addColor(matrix, 'particleThree').name('Color 3');
 // stats.showPanel( 0 );
 // document.body.appendChild( stats.dom );
 
+var uniforms;
 function calcFieldOFView(){
   var vFOV = camera.fov * Math.PI / 180;        // convert vertical fov to radians
   var height = 2 * Math.tan( vFOV / 2 ) * 40; // visible height
@@ -81,11 +82,12 @@ function calcFieldOFView(){
 }
 var circles = [],
             min    =  0.5,
-           max     = 11;
+           max     = 15;
 
 
 
 init();
+animate()
 var circle;
 var mesh;
 var counter;
@@ -179,7 +181,7 @@ function init() {
 
 
 
-        c.geometry.radius -= 0.3
+        c.geometry.radius -= 0.4
           // scene.add( ci );
           // c.x =  2  * Math.random() * width;
           // c.y = Math.random() * height
@@ -249,22 +251,32 @@ function init() {
           }
 
 
+      // var texture = new THREE.TextureLoader().load( "./styles/particle.png" );
 
+      var color = new THREE.Color(Math.random(), Math.random(), Math.random())
 
+      uniforms = {
+          "amplitude": { value: 1 },
+            "color": { value:  color}
+            // "texture": { value: texture }
 
+        }
 
-
-
-
-
-     var sphere = new THREE.SphereGeometry(min, 32)
+      var sphere = new THREE.SphereGeometry(min, 32)
         // geometry.radius = radius;
 
       var shaderMaterial = new THREE.ShaderMaterial({
+                            uniforms:       uniforms,
                             vertexShader:   document.getElementById('vertexShader').textContent,
                             fragmentShader: document.getElementById('fragmentShader').textContent,
-                            blending: THREE.additiveBlending
+                            transparent: true
                           })
+
+
+
+      console.log(sphere,  'this is sphere')
+
+      // sphere.addAttribute( 'userColor', new THREE.BufferAttribute( color, 3 ) );
 
       var mesh = new THREE.Mesh( sphere, shaderMaterial );
       mesh.geometry.radius = min
@@ -298,7 +310,7 @@ function init() {
         // console.log(dista, ' in flase', c.geometry.radius, c2.geometry.radius)
         // if the distance of the radi is less then the sum of the radius
         // then they are touching
-        if(dista < c.geometry.radius/3.5+ c2.geometry.radius/3.5 ){
+        if(dista < c.geometry.radius/3.8+ c2.geometry.radius/3.8 ){
           // console.log(dist, dy, dx )
 
           return false;
@@ -310,8 +322,8 @@ function init() {
 
 
     function drawCircle(ci,x,y){
-      console.log(ci.geometry.radius)
-      console.log(ci)
+      // console.log(ci.geometry.radius)
+      // console.log(ci)
       ci.scale.set(ci.geometry.radius, ci.geometry.radius, ci.geometry.radius)
       scene.add( ci );
 
@@ -380,38 +392,43 @@ function render() {
     }
 
 
-    // for (var j = 0; j < geometry.colors.length; j++){
-    //     if(!app.audio && !app.microphone){
-    //         timeFloatData[j] = 0;
-    //     }
-    //     var r, g, b;
-    //     var intensity = timeFloatData[j] * matrix.colorIntensity;
-    //     // var timer = Date.now() - start;
-    //     points.material.size = 0.4 + (timeFloatData[j] * (matrix.sizeIntensity/10));
-    //     if (j%3 !== 0 && j%2 !==0){
-    //         points.geometry.colors[j].set(matrix.particleOne);
-    //         r = geometry.colors[j].r;
-    //         g = geometry.colors[j].g;
-    //         b = geometry.colors[j].b;
-    //         geometry.colors[j].setRGB((r + intensity), (g + intensity), (b + intensity));
-    //     }
-    //     else if (j%2 === 0){
+      for (var j = 1; j < scene.children.length; j++){
+          if(!app.audio && !app.microphone){
+              timeFloatData[j] = 0;
+          }
+          var r, g, b;
+          var amplitude = timeFloatData[j] * matrix.colorIntensity;
+          scene.children[j].colorsNeedUpdate = true;
+          scene.children[j].material.uniforms.amplitude.value = amplitude;
+          scene.children[j].material.uniforms.color.value.r = Math.random()
+          scene.children[j].material.uniforms.color.value.g = Math.random()
+          scene.children[j].material.uniforms.color.value.b = Math.random()
+          // var timer = Date.now() - start;
+          // points.material.size = 0.4 + (timeFloatData[j] * (matrix.sizeIntensity/10));
+          // if (j%3 !== 0 && j%2 !==0){
+          //     // circles[j].geometry.set(matrix.particleOne);
+          //     r = .3;
+          //     g = 0.4;
+          //     b = 0.6;
+          //     circles[j].geometry.colors.setRGB((r + intensity), (g + intensity), (b + intensity));
+          // }
+          // // else if (j%2 === 0){
 
-    //         points.geometry.colors[j].set(matrix.particleTwo);
-    //         r = geometry.colors[j].r;
-    //         g = geometry.colors[j].g;
-    //         b = geometry.colors[j].b;
-    //         geometry.colors[j].setRGB((r + intensity), (g + intensity), (b + intensity));
-    //     }
-    //     else if(j%3 === 0){
-    //         points.geometry.colors[j].set(matrix.particleThree);
-    //         r = geometry.colors[j].r;
-    //         g = geometry.colors[j].g;
-    //         b = geometry.colors[j].b;
-    //         geometry.colors[j].setRGB((r + intensity), (g + intensity), (b + intensity));
-    //     }
+          //     points.geometry.colors[j].set(matrix.particleTwo);
+          //     r = geometry.colors[j].r;
+          //     g = geometry.colors[j].g;
+          //     b = geometry.colors[j].b;
+          //     geometry.colors[j].setRGB((r + intensity), (g + intensity), (b + intensity));
+          // }
+          // else if(j%3 === 0){
+          //     points.geometry.colors[j].set(matrix.particleThree);
+          //     r = geometry.colors[j].r;
+          //     g = geometry.colors[j].g;
+          //     b = geometry.colors[j].b;
+          //     geometry.colors[j].setRGB((r + intensity), (g + intensity), (b + intensity));
+          // }
 
-
+        }
     //     // donut
     //     if (matrix.donut) {
     //         matrix.spacing = 10 || matrix.spacing;

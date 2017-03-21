@@ -14,21 +14,21 @@
     precision highp float;
     #endif
 
-    attribute vec3 userColor;
+    uniform vec3 color;
     attribute float size;
-    // uniform float amplitude;
+    uniform float amplitude;
     attribute float displacement;
     varying vec3 vNormal;
     varying vec3 p;
+    varying vec3 vColor;
     // varying vec3 vColor;
-    // varying vec3 vColor;
-    // varying float amplitude;
+    varying float musicBox;
     void main() {
 
       vNormal = normal;
 
-      // vColor  = userColor;
-
+      vColor  = color;
+      musicBox = amplitude;
       // gl_PointSize — contains size of rasterized points, in pixels
       // gl_PointSize = size;
       p = position;
@@ -69,8 +69,8 @@
     uniform sampler2D texture;
     varying vec3 p;
     // vec3 r;
-    // varying vec3 vColor;
-
+    varying vec3 vColor;
+     varying float musicBox;
     void main()
     {
 
@@ -86,31 +86,38 @@
       // // the light to the vertex normal
       float dProd = max(0.9, dot(vNormal, light));
 
-      if(p.x < 0.0  && p.y > 0.0){
+      // if(p.x < 0.0  && p.y > 0.0){
 
-             gl_FragColor = vec4(sin(p.y) * 0.1, // R
-                           sin(p.y) + cos(p.y) * dProd, // G
-                           cos(p.y) * dProd, // B
-                          1
-      );
-
-
-      }else {
-
-             gl_FragColor = vec4(sin(p.x) + sin(p.y) * 0.8, // R
-                          sin(p.y) + cos(p.x) * sin(p.y), // G
-                          cos(p.y) + cos(p.x) , // B
-                          1
-      );
+      //        gl_FragColor = vec4(sin(p.y) * 0.1, // R
+      //                      sin(p.y) + cos(p.y) * dProd, // G
+      //                      cos(p.y) * dProd, // B
+      //                     1
+      // );
 
 
-      }
+      // }else {
+
+      //        gl_FragColor = vec4(
+      //         sin(vColor[0]) + musicBox + dProd,
+      //         cos(vColor[1]) * dProd + musicBox,
+      //         cos(vColor[2]) * dProd + musicBox,
+      //        1);
+
+
+      // }
 
 
 
        // vec3 r = vec3(0.9, 0.9, 0.9);
      // feed into our frag colour
       // gl_FragColor = gl_FragColor;  // A
+
+      gl_FragColor = vec4(vColor[0]  + musicBox, // R
+                          vColor[1] + musicBox, // G
+                          vColor[2]  + musicBox, // B
+                          1
+      );
+
 
     }
 
