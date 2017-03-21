@@ -7,12 +7,11 @@ var mouseX = 0, mouseY = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 var start = Date.now();
-var cone;
 container = document.createElement('div');
 container.setAttribute('id', 'container');
 document.body.appendChild(container);
 camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
-camera.position.set( 0, 0, 50 );
+camera.position.set( 0, 0, 150 );
 scene = new THREE.Scene();
 renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true});
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -43,16 +42,20 @@ var GuiControls = function(){
     this.square = false;
     this.infinity = false;
     this.longDonut2 = false;
+    this.figure8blanket = false;
+    this.rainbowColor = false;
+    this.blending        = false;
     this.particleOne = 0x00ff00;
     this.particleTwo = 0xc33287;
     this.particleThree = 0x19afcf;
     this.color = "#ffae23";
-    this.fog = false;
-    this.fogColor = 0x19afcf;
     this.radius = 5;
     this.size = 35;
-    this.hippie = false;
+
 };
+var colors = new Float32Array( numOfParticles * 3 );
+var c = new THREE.Color();
+c.setRGB(Math.random(), Math.random(), Math.random());
 
 
 
@@ -70,12 +73,11 @@ gui.add(matrix, 'twinkle', 1, 1000).step(10).name('Twinkle');
 gui.add(matrix, 'colorIntensity', 0.5, 5).step(1).name('Color Intensity');
 gui.add(matrix, 'zoomSpeed', 0.001, 0.1).step(0.001).name('Zoom Speed');
 gui.add(matrix, 'rotationSpeed', 0, 0.1).step(0.000005).name('Z-index Rotation Speed');
-gui.add(matrix, 'fog').name('fog')
-gui.add(matrix, 'hippie').name('hippie')
+gui.add(matrix, 'rainbowColor').name('rainbow color')
+gui.add(matrix, 'blending').name('blending')
 gui.addColor(matrix, 'particleOne').name('Color 1');
 gui.addColor(matrix, 'particleTwo').name('Color 2');
 gui.addColor(matrix, 'particleThree').name('Color 3');
-gui.addColor(matrix, 'fogColor')
 gui.add(matrix, 'radius',0, 100).step(1).name('radius')
 gui.add(matrix, 'size',0, 100).step(0.1).name('size')
 
@@ -103,6 +105,19 @@ var geometry;
 var color;
 var numOfParticles;
 
+
+var colorRainbow = new Float32Array( 2024 * 3 );
+
+      for ( var i = 0, vert = 0; i < 2024; i ++, vert += 3 ) {
+        var c = new THREE.Color();
+        c.setRGB(Math.random(), Math.random(), Math.random());
+        colorRainbow[ vert + 0 ] = c.r;
+        colorRainbow[ vert + 1 ] = c.g;
+        colorRainbow[ vert + 2 ] = c.b;
+
+      }
+
+
 function init() {
   // making these globals iust for debugging purposes
       numOfParticles = 2024;
@@ -120,8 +135,7 @@ function init() {
       uniforms = {
         "amplitude": { value: 1 },
           "color": { value: new THREE.Color( 0xff2200 ) },
-          "texture": { value: texture },
-          "hippie": { value: false}
+          "texture": { value: texture }
       }
 
       var shaderMaterial = new THREE.ShaderMaterial({
@@ -210,10 +224,10 @@ function setColor(vert, i, musicData){
 
 function rColor(vert, i, timeFloatData){
   var c = new THREE.Color();
-  c.setRGB(1, 0.2, 1);
-  geometry.attributes.userColor.array[ vert + 0 ] = c.r + timeFloatData[i];
-  geometry.attributes.userColor.array[ vert + 1 ] = c.g + timeFloatData[i];
-  geometry.attributes.userColor.array[ vert + 2 ] = c.b + timeFloatData[i];
+  c.setRGB(Math.random(), Math.random(), Math.random());
+  geometry.attributes.userColor.array[ vert + 0 ] = c.r;
+  geometry.attributes.userColor.array[ vert + 1 ] = c.g;
+  geometry.attributes.userColor.array[ vert + 2 ] = c.b;
 }
 
 function randomColor(vert, i, timeFloatData){
@@ -306,33 +320,46 @@ function render() {
 
         geometry.attributes.size.array[i] = matrix.size + (timeFloatData[i] * matrix.twinkle);
 
+      if(matrix.blending){
+        particleSystem.material.blending = 2
+      }
+      else {
+        particleSystem.material.blending = 1
+      }
 
 
-
-
-
-
+      if(matrix.rainbowColor){
+        // rColor(vert, i, timeFloatData)
+          geometry.attributes.userColor.array[ vert + 0 ] = colorRainbow[vert + 0]
+          geometry.attributes.userColor.array[ vert + 1 ] = colorRainbow[vert + 1]
+          geometry.attributes.userColor.array[ vert + 2 ] = colorRainbow[vert + 2]
+      }
+      else {
         if(i%3 !== 0 && i%2 !==0){
-            // color.setHex(matrix.particleOne)
-            // setColor(vert, i, timeFloatData)
+            color.setHex(matrix.particleOne)
+            setColor(vert, i, timeFloatData)
 
             // twinkle me timbers
-            geometry.attributes.size.array[i] = matrix.size * (timeFloatData[i] * 10);
+            // geometry.attributes.size.array[i] = matrix.size * (timeFloatData[i] * 10);
          }
         else if (i%2 === 0){
-            // color.setHex(matrix.particleTwo)
+            color.setHex(matrix.particleTwo)
             // // setPosition(vert, i)
-            // setColor(vert, i, timeFloatData)
+            setColor(vert, i, timeFloatData)
         }
         else if(i%3 === 0){
-            // color.setHex(matrix.particleThree)
-            // setColor(vert, i, timeFloatData)
+            color.setHex(matrix.particleThree)
+            setColor(vert, i, timeFloatData)
             // var num = i + 100
             // setPosition(vert, num)
         }
         else{
 
         }
+      }
+
+
+
 
         matrix.spacing =  matrix.spacing;
 
@@ -373,7 +400,7 @@ function render() {
         else if(matrix.spade){
           createSpade(vert, i, timeFloatData)
         }
-        else if(matrix.hippie){
+        else if(matrix.figure8blanket){
           geometry.attributes.position.array[ vert + 0 ] = matrix.spacing * (Math.cos(i/matrix.angle)) + Math.cos(i) + (Math.cos(timeFloatData[i]))
           geometry.attributes.position.array[ vert + 1 ] = matrix.spacing * (Math.sin(i/ 1 - matrix.angle)) + Math.sin(i)
           geometry.attributes.position.array[ vert + 2 ] = matrix.spacing * (Math.cos(i/matrix.angle)) * Math.cos(i) * Math.sin(i/matrix.angle) + Math.sin(timeFloatData[i]) + (Math.cos(timeFloatData[i]))
@@ -426,7 +453,7 @@ function onKeyDown(e) {
             matrix.square = false;
             matrix.infinity = false;
             matrix.longDonut2 = false;
-            matrix.hippie = false;
+            matrix.figure8blanket = false;
             break;
         case 50:
             //2
@@ -437,7 +464,7 @@ function onKeyDown(e) {
             matrix.square = false;
             matrix.infinity = false;
             matrix.longDonut2 = false;
-            matrix.hippie = false;
+            matrix.figure8blanket = false;
             break;
         case 51:
             //3
@@ -448,7 +475,7 @@ function onKeyDown(e) {
             matrix.square = false;
             matrix.infinity = false;
             matrix.longDonut2 = false;
-            matrix.hippie = false;
+            matrix.figure8blanket = false;
             break;
         case 52:
             //4
@@ -459,7 +486,7 @@ function onKeyDown(e) {
             matrix.square = false;
             matrix.infinity = false;
             matrix.longDonut2 = false;
-            matrix.hippie = false;
+            matrix.figure8blanket = false;
             break;
         case 53:
             //5
@@ -470,7 +497,7 @@ function onKeyDown(e) {
             matrix.square = true;
             matrix.infinity = false;
             matrix.longDonut2 = false;
-            matrix.hippie = false;
+            matrix.figure8blanket = false;
             break;
         case 54:
             //6
@@ -481,7 +508,7 @@ function onKeyDown(e) {
             matrix.square = false;
             matrix.infinity = true;
             matrix.longDonut2 = false;
-            matrix.hippie = false;
+            matrix.figure8blanket = false;
             break;
         case 55:
             //77
@@ -492,12 +519,12 @@ function onKeyDown(e) {
             matrix.square = false;
             matrix.infinity = false;
             matrix.longDonut2 = true;
-            matrix.hippie = false;
+            matrix.figure8blanket = false;
             break;
 
         case 56:
             //9
-            console.log('hpaen')
+
             matrix.sphere = false;
             matrix.donut = false;
             matrix.longDonut = false;
@@ -505,7 +532,7 @@ function onKeyDown(e) {
             matrix.square = false;
             matrix.infinity = false;
             matrix.longDonut2 = false;
-            matrix.hippie      = true;
+            matrix.figure8blanket = true;
             break;
   }
 

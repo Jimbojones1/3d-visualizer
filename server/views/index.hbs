@@ -88,7 +88,7 @@
       // vec3 c = vec3(colors);
       // calculate the dot product of
       // the light to the vertex normal
-      float dProd = max(0.9, dot(vNormal, light));
+      float dProd = max(0.5, dot(vNormal, light));
 
 
 
@@ -97,7 +97,7 @@
        // vec3 r = vec3(0.9, 0.9, 0.9);
      // feed into our frag colour
       // gl_FragColor = gl_FragColor;  // A
-       gl_FragColor = vec4(vColor[0], vColor[1] * dProd, vColor[2] * dProd, 1.0) * texture2D(texture, gl_PointCoord);
+       gl_FragColor = vec4(vColor[0] + dProd, vColor[1] + dProd, vColor[2] + dProd, 1.0) * texture2D(texture, gl_PointCoord);
       // gl_FragColor = vec4(vColor[0], vColor[1] * dProd, vColor[2] * dProd, 1.0) * texture2D(texture, gl_PointCoord);
     }
 
